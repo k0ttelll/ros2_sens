@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Устанавливаем Python-библиотеки для промышленных протоколов и вебхуков
-RUN pip3 install python-snap7 asyncua flask
+RUN pip3 install python-snap7 asyncua flask watchdog
 
 # Создаем рабочую директорию в контейнере
 WORKDIR /root/ros2_ws

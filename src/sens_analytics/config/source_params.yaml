@@ -9,3 +9,9 @@
 /plc_scraper_node:
   ros__parameters:
     poll_rate_hz: 0.1 # 10 секунд
+
+/code_monitor_node:
+  ros__parameters:
+    source_mode: "debug_file"
+    watch_directory: "/root/ros2_ws/src/sens_analytics/test_code"
+    debounce_seconds: 0.7

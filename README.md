@@ -42,6 +42,7 @@ Contains static STL analysis logic:
 - `parser.py`, `expression_parser.py`, `analysis/` - integrated parser core from `tetram1t/stl_parser`.
 - `graph_adapter.py` - converts academic parser/PDG output into a clean industrial dependency JSON.
 - `stl_analyzer_node.py` - ROS 2 service server for `/sens/parse_code`.
+- `code_monitor_node.py` - **Lifecycle Node** that watches a directory for `.stl`/`.scl`/`.awl` changes via `watchdog`, debounces rapid IDE save events, and asynchronously calls `/sens/parse_code`.
 - `source_lifecycle_manager.py` - ROS 2 node managing the dynamic state transitions of data collection nodes based on `source_mode`.
 - Lifecycle nodes: `file_watcher_node.py`, `git_subscriber_node.py`, `plc_scraper_node.py`, `fallback_semantic_node.py`.
 
@@ -123,6 +124,7 @@ The Docker image installs:
 - `python3-networkx`
 - `python3-pydot`
 - `graphviz`
+- `watchdog` (pip)
 
 ## Start The Docker Container
 
@@ -271,6 +273,46 @@ Expected response contains `success: true` and a JSON string similar to:
     }
   ]
 }
+```
+
+## Run The Code Monitor Node
+
+The `code_monitor_node` is a Lifecycle Node that watches a local directory for `.stl`, `.scl`, and `.awl` file changes and automatically sends modified code to the `/sens/parse_code` service for analysis.
+
+Terminal 1 — start the STL analysis service:
+
+```bash
+ros2 run sens_analytics stl_analyzer_node
+```
+
+Terminal 2 — start the code monitor node:
+
+```bash
+ros2 run sens_analytics code_monitor_node
+```
+
+Terminal 3 — activate the node through its lifecycle:
+
+```bash
+ros2 lifecycle set /code_monitor_node configure
+ros2 lifecycle set /code_monitor_node activate
+```
+
+Now any `.stl`, `.scl`, or `.awl` file saved into the watched directory (default: `/root/ros2_ws/src/sens_analytics/test_code`) will be automatically parsed.
+
+To override parameters at startup:
+
+```bash
+ros2 run sens_analytics code_monitor_node --ros-args \
+  -p source_mode:=debug_file \
+  -p watch_directory:=/path/to/code \
+  -p debounce_seconds:=1.0
+```
+
+To deactivate monitoring:
+
+```bash
+ros2 lifecycle set /code_monitor_node deactivate
 ```
 
 ## How STL Graph Filtering Works

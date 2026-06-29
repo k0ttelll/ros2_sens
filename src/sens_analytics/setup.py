@@ -29,6 +29,7 @@ setup(
             "plc_scraper_node = sens_analytics.plc_scraper_node:main",
             "fallback_semantic_node = sens_analytics.fallback_semantic_node:main",
             "source_lifecycle_manager = sens_analytics.source_lifecycle_manager:main",
+            "code_monitor_node = sens_analytics.code_monitor_node:main",
         ],
     },
 )
