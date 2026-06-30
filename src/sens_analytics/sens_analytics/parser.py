@@ -196,13 +196,13 @@ class Parser:
                 continue
 
             if opcode in self._INPUT_OPCODES and operand:
-                active_sources.append(operand)
+                active_sources.append((operand, opcode))
                 graph.add_node(operand)
                 continue
 
             if opcode in self._OUTPUT_OPCODES and operand:
                 graph.add_node(operand)
-                for source in active_sources:
+                for source, src_opcode in active_sources:
                     if source == operand:
                         continue
                     graph.add_edge(
@@ -210,6 +210,7 @@ class Parser:
                         operand,
                         block_name=context["block_name"],
                         network_number=context["network_number"],
+                        input_opcode=src_opcode,
                     )
 
                 if opcode == "T":

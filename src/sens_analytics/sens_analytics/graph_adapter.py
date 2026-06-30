@@ -24,6 +24,7 @@ _INTERNAL_RE = re.compile(
 _INPUT_RE = re.compile(r"^(?:I|IB|IW|ID|E|EB|EW|ED|PI|PE)\d+(?:\.\d+)?$", re.IGNORECASE)
 _OUTPUT_RE = re.compile(r"^(?:Q|QB|QW|QD|A|AB|AW|AD|PQ|PA)\d+(?:\.\d+)?$", re.IGNORECASE)
 _ADDRESS_RE = re.compile(r"^[A-Z]{1,3}\d+(?:\.\d+)?$", re.IGNORECASE)
+_INVERTED_OPCODES = frozenset(("AN", "ON"))
 
 
 def transform_pdg_to_sens_json(pdg_graph: nx.DiGraph) -> str:
@@ -54,14 +55,16 @@ def transform_pdg_to_sens_json(pdg_graph: nx.DiGraph) -> str:
             continue
         seen.add(key)
 
+        input_opcode = str(edge_data.get("input_opcode", "")).upper()
+        dep_type = "inverted" if input_opcode in _INVERTED_OPCODES else "direct_logic"
+
         dependencies.append(
             {
                 "source": source,
                 "target": target,
-                "metadata": {
-                    "block_name": block_name,
-                    "network_number": network_number,
-                },
+                "block_name": block_name,
+                "network_number": network_number,
+                "type": dep_type,
             }
         )
 
