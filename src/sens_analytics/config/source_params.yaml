@@ -5,6 +5,7 @@
 /file_watcher_node:
   ros__parameters:
     watch_dir: "/tmp/code_debug/"
+    debounce_seconds: 0.7
 
 /plc_scraper_node:
   ros__parameters:

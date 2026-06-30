@@ -68,10 +68,21 @@ def generate_launch_description():
         parameters=[config_file]
     )
 
+    # Мост: /sens/raw_code_stream  →  /sens/parse_code
+    # Замыкает lifecycle-конвейер сбора данных с аналитическим ядром.
+    code_bridge_node = Node(
+        package=pkg_name,
+        executable='code_bridge_node',
+        name='code_bridge_node',
+        output='screen',
+        parameters=[config_file]
+    )
+
     return LaunchDescription([
         file_watcher_node,
         git_subscriber_node,
         plc_scraper_node,
         fallback_semantic_node,
-        lifecycle_manager_node
+        lifecycle_manager_node,
+        code_bridge_node
     ])
