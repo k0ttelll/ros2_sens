@@ -2,6 +2,7 @@ import rclpy
 from rclpy.lifecycle import Node, Publisher, State, TransitionCallbackReturn
 from std_msgs.msg import String
 
+
 class GitSubscriberNode(Node):
     def __init__(self):
         super().__init__('git_subscriber_node')

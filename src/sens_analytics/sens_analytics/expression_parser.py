@@ -189,7 +189,7 @@ if __name__ == "__main__":
     tree = build_expression(test_lines)
 
     print("Expression tree:\n")
-    
+
     print_tree(tree)
 
     print("\nAs JSON:\n")

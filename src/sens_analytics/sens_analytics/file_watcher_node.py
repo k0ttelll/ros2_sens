@@ -19,8 +19,8 @@ import threading
 import rclpy
 from rclpy.lifecycle import Node, Publisher, State, TransitionCallbackReturn
 from std_msgs.msg import String
-from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
+from watchdog.observers import Observer
 
 # Расширения файлов, которые читаются и публикуются целиком.
 _WATCHED_EXTENSIONS = (".stl", ".scl", ".awl")
@@ -145,7 +145,7 @@ class FileWatcherNode(Node):
             self._debounce_timers.pop(filepath, None)
 
         try:
-            with open(filepath, "r", encoding="utf-8") as f:
+            with open(filepath, encoding="utf-8") as f:
                 content = f.read()
         except Exception as exc:
             self.get_logger().warn(f"Failed to read {filepath}: {exc}")

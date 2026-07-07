@@ -1,11 +1,13 @@
 import os
-from launch import LaunchDescription
-from launch_ros.actions import Node, LifecycleNode
+
 from ament_index_python.packages import get_package_share_directory
+from launch import LaunchDescription
+from launch_ros.actions import LifecycleNode, Node
+
 
 def generate_launch_description():
     pkg_name = 'sens_analytics'
-    
+
     # Путь до YAML конфигурации
     # Если пакет установлен корректно, get_package_share_directory вернет путь к config
     try:
@@ -20,9 +22,9 @@ def generate_launch_description():
             os.path.dirname(__file__), '..', 'config', 'source_params.yaml'
         )
 
-    # Определяем 4 Lifecycle ноды. 
+    # Определяем 4 Lifecycle ноды.
     # В ROS 2 Lifecycle-ноды по умолчанию стартуют в состоянии Unconfigured.
-    
+
     file_watcher_node = LifecycleNode(
         package=pkg_name,
         executable='file_watcher_node',

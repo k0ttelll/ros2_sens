@@ -2,13 +2,14 @@ import rclpy
 from rclpy.lifecycle import Node, Publisher, State, TransitionCallbackReturn
 from std_msgs.msg import String
 
+
 class PlcScraperNode(Node):
     def __init__(self):
         super().__init__('plc_scraper_node')
         self.pub_: Publisher = None
         self.timer_ = None
         self.last_checksum = "INITIAL_HASH"
-        
+
         self.declare_parameter('poll_rate_hz', 0.1)
 
     def on_configure(self, state: State) -> TransitionCallbackReturn:
@@ -19,11 +20,11 @@ class PlcScraperNode(Node):
     def on_activate(self, state: State) -> TransitionCallbackReturn:
         self.get_logger().info('FSM Transition: Activating PlcScraperNode (plc_polling mode)...')
         super().on_activate(state)
-        
+
         # Получаем период поллинга
         hz = self.get_parameter('poll_rate_hz').get_parameter_value().double_value
         period = 1.0 / hz if hz > 0 else 10.0
-        
+
         # Запускаем фоновый ROS Timer для опроса ПЛК
         self.timer_ = self.create_timer(period, self.timer_callback)
         self.get_logger().info(f'Started PLC polling timer every {period} seconds.')
@@ -59,12 +60,12 @@ class PlcScraperNode(Node):
     def timer_callback(self):
         self.get_logger().debug('Polling PLC...')
         new_hash = self.check_plc_checksum()
-        
+
         # Если хэш изменился - код на ПЛК был обновлен
         if new_hash != self.last_checksum:
             self.get_logger().info('PLC Checksum changed! Simulating SCL block download...')
             self.last_checksum = new_hash
-            
+
             # Публикуем в топик
             if self.pub_ and self.pub_.is_activated:
                 msg = String()

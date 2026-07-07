@@ -7,12 +7,14 @@ Covers:
   - Tree serialization (to_dict)
 """
 
+import os
+import sys
+
 import pytest
 
-import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from sens_analytics.expression_parser import build_expression, ExprNode
+from sens_analytics.expression_parser import ExprNode, build_expression
 
 
 class TestBuildExpression:

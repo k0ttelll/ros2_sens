@@ -1,8 +1,7 @@
 from pprint import pprint
 
-from parser import parse_stl_mvp
 from analysis.dataflow import build_use_def
-
+from parser import parse_stl_mvp
 
 code = """
 L MW10

@@ -1,7 +1,5 @@
+from analysis.reaching_definitions import build_reaching_definitions
 from parser import parse_stl_mvp
-from analysis.reaching_definitions import (
-    build_reaching_definitions
-)
 
 code = """
 L MW10

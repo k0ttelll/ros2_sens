@@ -32,14 +32,14 @@ from __future__ import annotations
 
 import os
 import threading
-from typing import Dict, Optional
 
 import rclpy
 from rclpy.lifecycle import Node as LifecycleNode
 from rclpy.lifecycle import State, TransitionCallbackReturn
-from sens_interfaces.srv import ParseStl
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
+
+from sens_interfaces.srv import ParseStl
 
 # Расширения файлов, за которыми ведётся наблюдение.
 _WATCHED_EXTENSIONS = frozenset(('.stl', '.scl', '.awl'))
@@ -91,9 +91,9 @@ class CodeMonitorNode(LifecycleNode):
         self.declare_parameter('debounce_seconds', 0.7)
 
         # --- Внутреннее состояние (инициализируется в on_configure) ---
-        self._parse_client: Optional[rclpy.client.Client] = None
-        self._observer: Optional[Observer] = None
-        self._debounce_timers: Dict[str, threading.Timer] = {}
+        self._parse_client: rclpy.client.Client | None = None
+        self._observer: Observer | None = None
+        self._debounce_timers: dict[str, threading.Timer] = {}
         self._debounce_lock = threading.Lock()
         self._debounce_sec: float = 0.7
 
@@ -232,7 +232,7 @@ class CodeMonitorNode(LifecycleNode):
 
         # --- Чтение файла (с защитой от ошибок) ---
         try:
-            with open(filepath, 'r', encoding='utf-8') as fh:
+            with open(filepath, encoding='utf-8') as fh:
                 code_text = fh.read()
         except Exception as exc:
             self.get_logger().warn(

@@ -1,4 +1,5 @@
 import re
+
 try:
     from .expression_parser import build_expression
 except ImportError:

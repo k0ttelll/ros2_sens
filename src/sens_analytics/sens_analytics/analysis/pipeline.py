@@ -5,10 +5,10 @@ except ImportError:
 
 from .basic_blocks import build_basic_blocks, build_block_cfg
 from .dataflow import build_use_def
-from .reaching_definitions import build_reaching_definitions
 from .def_use import build_def_use
 from .dependency_graph import build_dependency_graph
 from .instruction_cfg import build_instruction_cfg
+from .reaching_definitions import build_reaching_definitions
 
 
 def analyze(code: str):

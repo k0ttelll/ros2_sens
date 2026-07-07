@@ -28,6 +28,85 @@ analytics. Выполнено **4 Action Item** из технического а
 
 ## 📅 Хронология работ
 
+### Цикл 2 — Тестирование и CI/CD (7 июля 2026)
+
+**Цель:** довести инженерную гигиену до production-ready уровня.
+
+| Метрика | Значение |
+|---|---|
+| Создано тестовых файлов | 3 |
+| Новых `pytest`-тестов | 59 |
+| CI-джобов | 3 (lint + test + build) |
+| Lint-ошибок исправлено | 63 |
+| Коммитов в `main` | 3 |
+
+#### Этап 7 — Формальные pytest-тесты
+
+**Коммит:** `5d2bcfd`
+
+Написаны и запущены **59 unit-тестов** для трёх ядерных модулей:
+
+| Файл | Тестов | Покрытие |
+|---|---|---|
+| `tests/test_parser.py` | 22 | IR-уровень (`parse_stl_mvp`): инструкции, метки, CFG-рёбра, переходы, комментарии, предупреждения. PDG-уровень (`Parser`): прямые/инвертированные зависимости, self-loops, границы NETWORK, сброс при Transfer |
+| `tests/test_graph_adapter.py` | 24 | Type mapping (`direct_logic`/`inverted`), фильтрация шума (8 категорий: аккумуляторы, регистры, маркеры, DB-internals, temps, константы, AR, физ. I/O), дедупликация, JSON-контракт, **E2E** parser→adapter |
+| `tests/test_expression_parser.py` | 12 | Одиночные операнды (A/AN/O/ON), вложенные блоки (A(/O(/)), пустой вход, сериализация дерева |
+
+Все тесты запускаются **без ROS 2** — достаточно `pytest` + `networkx`.
+
+```
+59 passed in 0.13s
+```
+
+**Изменения:**
+- `tests/__init__.py`, `tests/test_parser.py`, `tests/test_graph_adapter.py`,
+  `tests/test_expression_parser.py` — новые файлы.
+- `pytest.ini` — конфигурация `pytest` (testpaths, addopts).
+- `README.md` — добавлена секция «Testing» с таблицей покрытия.
+
+---
+
+#### Этап 8 — CI/CD Pipeline (GitHub Actions)
+
+**Коммит:** `97f04c2`
+
+Создан 3-джобный CI-пайплайн:
+
+| Джоб | Runner | Действие |
+|---|---|---|
+| 🔍 Lint | `ubuntu-latest` | `ruff check` + `ruff format --check` |
+| 🧪 Test | `ubuntu-latest` | `pytest` (59 тестов, Python 3.10) |
+| 🔨 Build | `osrf/ros:humble-desktop` | `colcon build` + `colcon test` |
+
+Триггеры: push/PR на `main` и `prerelease`.
+Concurrency: предыдущие запуски на том же бранче отменяются автоматически.
+
+**Файлы:**
+- `.github/workflows/ci.yml` — workflow.
+- `pyproject.toml` — конфиг `ruff` (line-length=120, sensible ignores).
+
+---
+
+#### Этап 9 — Исправление lint-ошибок
+
+**63 ошибки** обнаружены `ruff`, все исправлены:
+
+| Категория | Кол-во | Файлы |
+|---|---|---|
+| W293 (trailing whitespace on blank lines) | 50+ | `source_lifecycle_manager.py` |
+| I001 (unsorted imports) | ~8 | `stl_analyzer_node.py`, `setup.py`, все test-файлы |
+| E401 (multiple imports on one line) | 3 | test-файлы (`import sys, os`) |
+| UP035 (deprecated `typing.Dict`) | 1 | `code_monitor_node.py` |
+
+62 ошибки исправлены автоматически (`ruff --fix`), 1 вручную.
+
+```
+All checks passed!
+59 passed in 0.12s
+```
+
+---
+
 ### Этап 1 — Глубокий технический аудит
 
 **Результат:** структурированный отчёт из 5 разделов.

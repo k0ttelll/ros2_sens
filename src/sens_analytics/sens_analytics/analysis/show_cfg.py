@@ -1,8 +1,8 @@
 from pprint import pprint
 
-from parser import parse_stl_mvp
 from analysis.basic_blocks import build_basic_blocks
 from analysis.block_cfg import build_block_cfg
+from parser import parse_stl_mvp
 
 code = """
 START : NOP 0

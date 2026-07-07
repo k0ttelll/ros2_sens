@@ -2,6 +2,7 @@ import rclpy
 from rclpy.lifecycle import Node, Publisher, State, TransitionCallbackReturn
 from std_msgs.msg import String
 
+
 class FallbackSemanticNode(Node):
     def __init__(self):
         super().__init__('fallback_semantic_node')

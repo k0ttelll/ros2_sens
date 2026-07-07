@@ -5,14 +5,15 @@ Covers:
   - Parser.parse_string_to_pdg(): NetworkX DiGraph construction for the service pipeline
 """
 
-import pytest
-import networkx as nx
+import os
+import sys
 
-import sys, os
+import networkx as nx
+import pytest
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from sens_analytics.parser import parse_stl_mvp, Parser
-
+from sens_analytics.parser import Parser, parse_stl_mvp
 
 # ---------------------------------------------------------------------------
 # parse_stl_mvp — IR level
