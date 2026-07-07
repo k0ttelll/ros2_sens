@@ -1,0 +1,134 @@
+# =============================================================================
+# Sens Platform — CI Pipeline
+# =============================================================================
+# Triggers on push/PR to main and prerelease branches.
+# Three jobs:
+#   1. lint   — Python code quality (ruff)
+#   2. test   — pytest unit tests (no ROS 2 needed)
+#   3. build  — colcon build + colcon test inside ROS 2 Humble container
+# =============================================================================
+
+name: CI
+
+on:
+  push:
+    branches: [main, prerelease]
+  pull_request:
+    branches: [main, prerelease]
+
+# Cancel previous runs on the same branch/PR
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# ---------------------------------------------------------------------------
+# Job 1: Lint
+# ---------------------------------------------------------------------------
+jobs:
+  lint:
+    name: 🔍 Lint (ruff)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install ruff
+        run: pip install ruff
+
+      - name: Run ruff check
+        run: ruff check src/ --output-format=github
+
+      - name: Run ruff format check
+        run: ruff format --check src/
+        continue-on-error: true  # formatting is advisory for now
+
+  # ---------------------------------------------------------------------------
+  # Job 2: Pytest (lightweight, no ROS 2)
+  # ---------------------------------------------------------------------------
+  test:
+    name: 🧪 Pytest (${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ["3.10"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: pip install pytest networkx
+
+      - name: Run tests
+        run: python -m pytest src/sens_analytics/tests/ -v --tb=short --junitxml=test-results.xml
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-py${{ matrix.python-version }}
+          path: test-results.xml
+
+  # ---------------------------------------------------------------------------
+  # Job 3: ROS 2 colcon build
+  # ---------------------------------------------------------------------------
+  build:
+    name: 🔨 Colcon Build (Humble)
+    runs-on: ubuntu-latest
+    container:
+      image: osrf/ros:humble-desktop
+    needs: [test]
+
+    steps:
+      - name: Install git (for checkout inside container)
+        run: |
+          apt-get update && apt-get install -y git
+        shell: bash
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          apt-get update && apt-get install -y \
+            python3-pip \
+            python3-colcon-common-extensions \
+            python3-rosdep \
+            python3-networkx \
+            python3-pydot \
+            graphviz \
+            python3-watchdog \
+          && rm -rf /var/lib/apt/lists/*
+        shell: bash
+
+      - name: Initialize rosdep
+        run: |
+          rosdep update || true
+        shell: bash
+
+      - name: Colcon build
+        run: |
+          source /opt/ros/humble/setup.bash
+          colcon build --symlink-install --event-handlers console_direct+
+        shell: bash
+
+      - name: Colcon test
+        run: |
+          source /opt/ros/humble/setup.bash
+          source install/setup.bash
+          colcon test --event-handlers console_direct+
+          colcon test-result --verbose
+        shell: bash
+        continue-on-error: true  # packages may not have colcon tests yet

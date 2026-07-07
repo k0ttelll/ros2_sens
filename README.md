@@ -428,6 +428,28 @@ cat ~/.ssh/id_ed25519.pub
 
 Then add the printed public key in GitHub: Settings -> SSH and GPG keys -> New SSH key.
 
+## CI/CD
+
+The project uses **GitHub Actions** for continuous integration. The pipeline triggers on every push and pull request to `main` and `prerelease` branches.
+
+### Pipeline Jobs
+
+| Job | Runner | What It Does |
+|-----|--------|-------------|
+| 🔍 **Lint** | `ubuntu-latest` | Runs `ruff check` and `ruff format --check` on all Python code |
+| 🧪 **Test** | `ubuntu-latest` | Runs 59 `pytest` tests (no ROS 2 needed) |
+| 🔨 **Build** | `osrf/ros:humble-desktop` | Full `colcon build` + `colcon test` inside ROS 2 Humble container |
+
+### Workflow File
+
+```text
+.github/workflows/ci.yml
+```
+
+### Concurrency
+
+Previous runs on the same branch/PR are automatically cancelled to save CI minutes.
+
 ## Repository Hygiene
 
 Generated ROS 2 folders should not be committed:

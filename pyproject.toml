@@ -1,0 +1,22 @@
+[tool.ruff]
+target-version = "py310"
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501",  # line too long (handled by formatter)
+    "E402",  # module level import not at top (needed for sys.path in tests)
+    "F401",  # unused import (in __init__.py files)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E402"]       # sys.path manipulation in test files
+"__init__.py" = ["F401"]   # re-exports in __init__ files
