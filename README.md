@@ -328,6 +328,41 @@ The analytics package uses the integrated `tetram1t/stl_parser` core to parse ST
 5. Filters out internal or noisy operands such as accumulators, registers, jumps, constants, markers, DB internals, and temporary symbols.
 6. Emits source-to-target dependencies enriched with block name, network number, and dependency type.
 
+## Testing
+
+The `sens_analytics` package includes a `pytest` test suite covering the core analysis modules. Tests are designed to run **without ROS 2** — only `networkx` and `pytest` are required.
+
+### Running Tests
+
+From the analytics package root:
+
+```bash
+cd src/sens_analytics
+python3 -m pytest tests/ -v
+```
+
+Or from anywhere in the workspace:
+
+```bash
+python3 -m pytest src/sens_analytics/tests/ -v
+```
+
+### Test Coverage
+
+| Module | Test File | Tests | What Is Covered |
+|--------|-----------|-------|-----------------|
+| `parser.py` | `tests/test_parser.py` | 22 | IR generation (`parse_stl_mvp`): instructions, labels, CFG edges, jumps, comments, warnings. PDG construction (`Parser`): direct/inverted deps, self-loops, network boundaries, transfer resets, block names |
+| `graph_adapter.py` | `tests/test_graph_adapter.py` | 24 | Type mapping (direct_logic/inverted), noise filtering (accumulators, registers, markers, DB internals, temps, constants), deduplication, JSON contract, edge cases, **end-to-end** parser→adapter pipeline |
+| `expression_parser.py` | `tests/test_expression_parser.py` | 12 | Single operands (A/AN/O/ON), nested blocks (A(/O(/)), empty input, tree serialization |
+
+**Total: 59 tests** (as of v0.1.0).
+
+### Dependencies
+
+```bash
+pip install pytest networkx
+```
+
 ## Development Commands
 
 Check package discovery:
